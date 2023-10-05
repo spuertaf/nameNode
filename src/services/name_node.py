@@ -1,7 +1,9 @@
 from ..utils.index_table import IndexTable
 from .grpc_service import GrpcService
 from.http_api import HttpApiService
+import multiprocessing
 
+from flask import Response
 
 class NameNodeService:
     def __init__(
@@ -13,17 +15,19 @@ class NameNodeService:
         self.http_gateway = HttpApiService(self.__data_nodes_table)
 
             
-    def init_http_service(self):
-        self.http_gateway.build()
+    def init_http_service(self, response: Response):
+        self.http_gateway.build(response)
         
     
-    def init_grpc_service(self):
-        self.grpc_gateway.build()
+    def init_grpc_service(self, grpc_listening_port:str):
+        self.grpc_gateway.build(grpc_listening_port)
     
     
-    def build(self):
-        self.init_grpc_service()
-        self.init_http_service()
+    def build(self, grpc_listening_port:str, response: Response):
+        grpc_process = multiprocessing.Process(target=self.init_grpc_service)
+        grpc_process.start()
+        
+        self.init_http_service(response)
     
     
     

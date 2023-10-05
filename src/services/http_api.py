@@ -87,7 +87,9 @@ class HttpApiService:
         self.handle_search(response)
         self.handle_list(response)
         self.__service.run(
-            host = host, port= port
+            host = host, 
+            port= port,
+            threaded = True
         ) 
        
         
