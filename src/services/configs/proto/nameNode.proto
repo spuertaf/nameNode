@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package name_node;
+
+message add2IndexRequest {
+    string dataNodeIP = 1;
+    string path2Add = 2;
+}
+
+message add2IndexResponse {
+    int32 statusCode = 1;
+}
+
+service Add2Index {
+    rpc add_2_index(add2IndexRequest) returns (add2IndexResponse);
+}
