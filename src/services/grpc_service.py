@@ -10,7 +10,7 @@ import grpc
 
 
 class GrpcService:
-    def __init__(self, data_nodes_table:IndexTable, name:str = "grpc-service"):
+    def __init__(self, data_nodes_table:IndexTable, name:str = "grpc"):
         self.__data_nodes_table:IndexTable = data_nodes_table
         self.__service:GrpcServer = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         
@@ -25,7 +25,7 @@ class GrpcService:
         
     
     def add_2_index(self, request: add2IndexRequest, context) -> add2IndexResponse:
-        print(f"Nueva Solicitud recivida de {context}")
+        print(f"Nueva Solicitud recivida de {context.peer()}")
         status_code: Union[None, int] = None
         try:
             self.__data_nodes_table.update_table(
@@ -52,7 +52,6 @@ if __name__ == "__main__":
     from ..utils import env_vars
     env_vars
     table = IndexTable()
-    print(table.get_table())
     grpc_s = GrpcService(table)
     grpc_s.build(listening_port="[::]:80")
     

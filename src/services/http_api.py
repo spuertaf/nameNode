@@ -9,7 +9,7 @@ class HttpApiService:
     def __init__(
         self,
         data_nodes_table: IndexTable, 
-        name:str = "http-service"
+        name:str = "http"
     ):
         self.name = name
         self.__data_nodes_table: IndexTable = data_nodes_table
@@ -24,6 +24,8 @@ class HttpApiService:
             #TODO Logging de peticion request.path.upper(), necesito IP
             assert json_request["payload"], f'Expected {{"payload": ...}} got {json_request}'
             self.__request = json_request
+            #### TODO mirar como mejorar esto con 2 funciones!
+            self.__data_nodes_table.__update_gs_index()
             
     
     def act_on_error(self, response: Response) -> None:

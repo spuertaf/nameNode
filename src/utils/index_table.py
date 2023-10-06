@@ -9,18 +9,14 @@ class IndexTable:
     
     def __init__(cls):
         if cls._data_nodes_index is None:
-            cls._data_nodes_index = pd.read_csv(os.environ["PATH_2_GS_INDEX"])
+            cls.__get_gs_index()
     
     
-    def __handle_updates(cls) -> None:
-        gs_index = pd.read_csv(
+    def __get_gs_index(cls):
+        cls._data_nodes_index = pd.read_csv(
             os.environ["PATH_2_GS_INDEX"], 
             index_col=None
         )
-        if ((not cls._data_nodes_index.equals(gs_index)) 
-            and 
-            (len(gs_index) > len(cls._data_nodes_index))): #tomo como valido el dataframe mas largo
-            cls._data_nodes_index = gs_index
     
     
     def __append_2_table(
@@ -36,7 +32,6 @@ class IndexTable:
             [cls._data_nodes_index, row],
             axis = 0
         )
-        cls._data_nodes_index.reset_index(drop=True)
     
     
     def __update_gs_index(cls) -> None:
@@ -46,8 +41,11 @@ class IndexTable:
         )
         
         
-    def update_table(cls, row_2_append:list[str,str]):
-        cls.__handle_updates()
+    def update_table(
+        cls,
+        row_2_append:list[str,str]
+    ):
+        cls.__get_gs_index()
         cls.__append_2_table(row_2_append)
         cls.__update_gs_index()
         
@@ -61,10 +59,6 @@ class IndexTable:
             )
         ]
         return nodes_with_file.values.tolist()
-    
-    
-    def get_table(cls) -> pd.DataFrame:
-        return cls._data_nodes_index
     
     
 if __name__ == "__main__":

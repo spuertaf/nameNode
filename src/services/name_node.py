@@ -15,19 +15,23 @@ class NameNodeService:
         self.http_gateway = HttpApiService(self.__data_nodes_table)
 
             
-    def init_http_service(self, response: Response):
+    def init_http_service(self, response: Response) -> None:
         self.http_gateway.build(response)
         
     
-    def init_grpc_service(self, grpc_listening_port:str):
+    def init_grpc_service(self, grpc_listening_port:str) -> None:
         self.grpc_gateway.build(grpc_listening_port)
     
     
-    def build(self, grpc_listening_port:str, response: Response):
-        grpc_process = multiprocessing.Process(target=self.init_grpc_service)
-        grpc_process.start()
+    def build(
+        self, 
+        grpc_listening_port:str, 
+        response: Response
+    ) -> None:
+        http_process = multiprocessing.Process(target=self.init_http_service, args=(response,))
+        http_process.start()
         
-        self.init_http_service(response)
+        self.init_grpc_service(grpc_listening_port)
     
     
     
