@@ -25,7 +25,7 @@ class HttpApiService:
             assert json_request["payload"], f'Expected {{"payload": ...}} got {json_request}'
             self.__request = json_request
             #### TODO mirar como mejorar esto con 2 funciones!
-            self.__data_nodes_table.__update_gs_index()
+            self.__data_nodes_table._get_gs_index()
             
     
     def act_on_error(self, response: Response) -> None:

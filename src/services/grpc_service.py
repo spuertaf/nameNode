@@ -9,9 +9,9 @@ from grpc._server import _Server as GrpcServer
 import grpc
 
 
-class GrpcService:
+class GrpcService(nameNode_pb2_grpc.Add2IndexServicer):
     def __init__(self, data_nodes_table:IndexTable, name:str = "grpc"):
-        self.__data_nodes_table:IndexTable = data_nodes_table
+        self.__data_nodes_table:IndexTable = IndexTable()
         self.__service:GrpcServer = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
         
             
@@ -37,7 +37,7 @@ class GrpcService:
             print(str(e))
             status_code = int(os.environ["ERROR-status"])
         finally:
-            return add2IndexResponse(statusCode=status_code) 
+            return add2IndexResponse(statusCode=status_code)
     
     
     def build(self, listening_port:str):

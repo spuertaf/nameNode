@@ -30,7 +30,6 @@ class NameNodeService:
     ) -> None:
         http_process = multiprocessing.Process(target=self.init_http_service, args=(response,))
         http_process.start()
-        
         self.init_grpc_service(grpc_listening_port)
     
     
