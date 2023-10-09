@@ -53,3 +53,7 @@ class IndexTable:
             )
         ]
         return nodes_with_file.values.tolist()
+
+    
+    def get_data_nodes(self) -> DataFrame:
+        return self._data_nodes_index
