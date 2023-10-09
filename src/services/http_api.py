@@ -4,6 +4,7 @@ import os
 from ..utils import env_vars 
 
 from flask import Flask, Response, request
+from pandas.core.frame import DataFrame
 
 class HttpApiService:
     def __init__(
@@ -15,6 +16,7 @@ class HttpApiService:
         self.__data_nodes_table: IndexTable = data_nodes_table
         self.__service = Flask(self.name)
         self.__request: Union[None, dict]  = None
+        self.__previous_position_given:int = 0 #ultima posicion de la lista de data nodes dada
         
     
     def validate_request(self) -> None:
@@ -37,8 +39,20 @@ class HttpApiService:
     
         
     def handle_put(self, response: Response):
-        response.data = "NOT IMPLEMENTED YET"
-        return response
+        @self.__service.route("/put", methods=["PUT"])
+        def __round_robin_data_nodes():
+            index_table: DataFrame = self.__data_nodes_table.get_data_nodes()
+            avaiable_data_nodes = index_table["DataNodeIP"].unique()
+            avaible_data_node:str = avaiable_data_nodes[self.__previous_position_given]
+            if self.__previous_position_given + 1 >= len(avaiable_data_nodes):
+                self.__previous_position_given = 0
+            else:
+                self.__previous_position_given +=1
+            ###TODO Mirar repeticion
+            response.data = avaible_data_node
+            response.status = 200
+            ####
+            return response
         
         
     def handle_get(self, response: Response):
@@ -88,6 +102,7 @@ class HttpApiService:
         self.handle_get(response)
         self.handle_search(response)
         self.handle_list(response)
+        self.handle_put(response)
         self.__service.run(
             host = host, 
             port= port,
