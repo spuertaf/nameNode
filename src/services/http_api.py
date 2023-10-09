@@ -42,7 +42,7 @@ class HttpApiService:
         
         
     def handle_get(self, response: Response):
-        @self.__service.route("/GET", methods=["GET"])
+        @self.__service.route("/get", methods=["GET"])
         def __get_file_path():
             file_name = self.__request["payload"]
             node_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(file_name)
@@ -54,7 +54,7 @@ class HttpApiService:
          
         
     def handle_search(self, response: Response):
-        @self.__service.route("/SEARCH", methods=["GET"])
+        @self.__service.route("/search", methods=["GET"])
         def __search_regex():
             regex:str = self.__request["payload"]
             nodes_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(regex)
@@ -66,7 +66,7 @@ class HttpApiService:
 
     
     def handle_list(self, response: Response):
-        @self.__service.route("/LIST", methods=["GET"])
+        @self.__service.route("/list", methods=["GET"])
         def __list_files():
             regex:str = '.*'
             nodes_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(regex)
