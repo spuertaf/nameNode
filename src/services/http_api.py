@@ -16,7 +16,8 @@ class HttpApiService:
         self.__data_nodes_table: IndexTable = data_nodes_table
         self.__service = Flask(self.name)
         self.__request: Union[None, dict]  = None
-        self.__previous_position_given:int = 0 #ultima posicion de la lista de data nodes dada
+        self.__previous_position_given_put:int = 0 #ultima posicion de la lista de data nodes dada
+        self.__previous_position_given_get:int = 0
         
     
     def validate_request(self) -> None:
@@ -37,19 +38,30 @@ class HttpApiService:
             response.status = int(os.environ["ERROR-status"])
             return response
     
+
+    def __round_robin_data_nodes(
+            self,
+            previous_position_given:int, 
+            avaible_data_nodes:list[str]
+    ) -> tuple[int, str]:
+        avaible_data_node:str = avaible_data_nodes[previous_position_given]
+        if previous_position_given + 1 >= len(avaible_data_nodes):
+            previous_position_given = 0
+        else:
+            previous_position_given += 1
+        return (previous_position_given, avaible_data_node,) 
+
         
     def handle_put(self, response: Response):
         @self.__service.route("/put", methods=["PUT"])
-        def __round_robin_data_nodes():
+        def __put_in_2_data_node():
             index_table: DataFrame = self.__data_nodes_table.get_data_nodes()
             avaiable_data_nodes = index_table["DataNodeIP"].unique()
-            avaible_data_node:str = avaiable_data_nodes[self.__previous_position_given]
-            if self.__previous_position_given + 1 >= len(avaiable_data_nodes):
-                self.__previous_position_given = 0
-            else:
-                self.__previous_position_given +=1
+            self.__previous_position_given_put, response.data = self.__round_robin_data_nodes(
+                self.__previous_position_given_put,
+                avaiable_data_nodes
+            )
             ###TODO Mirar repeticion
-            response.data = avaible_data_node
             response.status = 200
             ####
             return response
@@ -59,9 +71,13 @@ class HttpApiService:
         @self.__service.route("/get", methods=["GET"])
         def __get_file_path():
             file_name = self.__request["payload"]
-            node_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(file_name)
+            nodes_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(file_name)
+            nodes_ips: list[str] = list(map(lambda x: x[0], nodes_with_file))
+            self.__previous_position_given_get, response.data = self.__round_robin_data_nodes(
+                self.__previous_position_given_get,
+                nodes_ips
+            )
             ###TODO Mirar repeticion
-            response.data = str(node_with_file)
             response.status = 200
             ####
             return response
