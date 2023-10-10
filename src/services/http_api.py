@@ -73,11 +73,12 @@ class HttpApiService:
             file_name = self.__request["payload"]
             nodes_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(file_name)
             nodes_ips: list[str] = list(map(lambda x: x[0], nodes_with_file))
-            self.__previous_position_given_get, response.data = self.__round_robin_data_nodes(
+            self.__previous_position_given_get, available_data_node = self.__round_robin_data_nodes(
                 self.__previous_position_given_get,
                 nodes_ips
             )
             ###TODO Mirar repeticion
+            response.data = str(list(filter(lambda x: x[0] == available_data_node, nodes_with_file)))
             response.status = 200
             ####
             return response
