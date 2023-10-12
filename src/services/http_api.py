@@ -74,23 +74,19 @@ class HttpApiService:
         def __get_file_path():
             file_name = self.__request["payload"]
             nodes_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(file_name)
-            try:
-                nodes_ips: list[str] = list(map(lambda x: x[0], nodes_with_file))
-                self.__previous_position_given_get, available_data_node = self.__round_robin_data_nodes(
-                    self.__previous_position_given_get,
-                    nodes_ips
-                )
-                available_data_node = list(filter(lambda x: x[0] == available_data_node, nodes_with_file))
-                if len(available_data_node) > 1:
-                    raise Exception("More than one data node to respond not supported")
+            nodes_ips: list[str] = list(map(lambda x: x[0], nodes_with_file))
+            self.__previous_position_given_get, available_data_node = self.__round_robin_data_nodes(
+                self.__previous_position_given_get,
+                nodes_ips
+            )
+            available_data_node = list(filter(lambda x: x[0] == available_data_node, nodes_with_file))
+            if len(available_data_node) > 1:
+                raise Exception("More than one data node to respond not supported")
 
-                ###TODO Mirar repeticion
-                response.data = str(available_data_node[0])
-                response.status = 200
-                ###
-            except IndexError:
-                response.data = str([])
-                response.status = 200
+            ###TODO Mirar repeticion
+            response.data = str(available_data_node)
+            response.status = 200
+            ###
             return response
          
         
