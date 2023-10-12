@@ -19,6 +19,7 @@ class HttpApiService:
         self.__request: Union[None, dict]  = None
         self.__previous_position_given_put:int = 0 #ultima posicion de la lista de data nodes dada
         self.__previous_position_given_get:int = 0
+        self.__previous_file_searched = None
         
     
     def validate_request(self) -> None:
@@ -73,12 +74,19 @@ class HttpApiService:
         @self.__service.route("/get", methods=["GET"])
         def __get_file_path():
             file_name = self.__request["payload"]
+            self.__previous_file_searched = file_name
+            if self.__previous_file_searched != file_name:
+                self.__previous_position_given_get = 0
             nodes_with_file:list[list[str,str]] = self.__data_nodes_table.search_file(file_name)
+            print(nodes_with_file)
             nodes_ips: list[str] = list(map(lambda x: x[0], nodes_with_file))
+            print(nodes_ips)
+            print(self.__previous_position_given_get)
             self.__previous_position_given_get, available_data_node = self.__round_robin_data_nodes(
                 self.__previous_position_given_get,
                 nodes_ips
             )
+            print(self.__previous_position_given_get)
             available_data_node = list(filter(lambda x: x[0] == available_data_node, nodes_with_file))
             if len(available_data_node) > 1:
                 raise Exception("More than one data node to respond not supported")
